@@ -1,7 +1,7 @@
 import datetime
 import logging
 from zipfile import ZipFile
-from StringIO import StringIO
+#from StringIO import StringIO
 
 import requests
 
@@ -9,6 +9,7 @@ import requests
 FLOW_URL = 'https://flow.polar.com'
 FLOW_LOGIN_URL = "{}/ajaxLogin".format(FLOW_URL)
 FLOW_LOGIN_POST_URL = "{}/login".format(FLOW_URL)
+FLOW_GPX_URL = "{}/api/export/training/gpx/".format(FLOW_URL)
 ACTIVITIES_URL = "{}/training/getCalendarEvents".format(FLOW_URL)
 
 logger = logging.getLogger(__name__)
@@ -113,6 +114,20 @@ class Activity(object):
             #   * Some custom TCX object?
             return tcx_zip.read(tcx_name)
 
+    def gpx(self):
+        """Return the contents of the GPX file for the given activity.
+
+        ``activity`` can either be an id or an activity dictionary
+        (as returned by `get_activities`).
+
+        """
+        logging.debug("Fetching GPX file for %s", self.data['url'])
+
+        gpx_url = FLOW_GPX_URL + str(self.listItemId)
+        logging.debug("GPX url: %s", gpx_url)
+
+        resp = self.session.get(gpx_url)
+        return resp.text
 
 def _format_date(dt):
     return dt.strftime('%d.%m.%Y')
