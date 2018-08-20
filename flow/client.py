@@ -10,6 +10,7 @@ FLOW_URL = 'https://flow.polar.com'
 FLOW_LOGIN_URL = "{}/ajaxLogin".format(FLOW_URL)
 FLOW_LOGIN_POST_URL = "{}/login".format(FLOW_URL)
 FLOW_GPX_URL = "{}/api/export/training/gpx/".format(FLOW_URL)
+FLOW_CURVE_URL = "{}/training/analysis/{{}}/curve/data".format(FLOW_URL)
 ACTIVITIES_URL = "{}/training/getCalendarEvents".format(FLOW_URL)
 
 logger = logging.getLogger(__name__)
@@ -128,6 +129,14 @@ class Activity(object):
 
         resp = self.session.get(gpx_url)
         return resp.text
+
+    def sport(self):
+        """ Return sport name. """
+        curve_url = FLOW_CURVE_URL.format(str(self.listItemId))
+        logging.debug("Sport url: %s", curve_url)
+
+        resp = self.session.get(curve_url)
+        return resp.json()['exercises'][0]['sport']['name']
 
 def _format_date(dt):
     return dt.strftime('%d.%m.%Y')
